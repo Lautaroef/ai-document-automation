@@ -12,6 +12,7 @@ interface Draft {
   documentHtml: string;
   filledHtml?: string;
   filledDocUrl?: string;
+  messages: Message[];
 }
 
 interface Message {
@@ -40,17 +41,9 @@ export default function DraftPage({ params }: { params: Promise<{ id: string }> 
       const data = await res.json();
       setDraft(data);
 
-      // Add initial message from upload
-      if (messages.length === 0) {
-        const fieldCount = (data.fields as Field[]).length;
-        const requiredFields = (data.fields as Field[]).filter((f: Field) => f.required);
-
-        setMessages([{
-          role: 'assistant',
-          content: `Great! I've analyzed your SAFE agreement and found ${fieldCount} fields that need to be filled${requiredFields.length < fieldCount ? ` (${requiredFields.length} required)` : ''}.
-
-Let's collect the information together. ${(data.fields as Field[])[0]?.question || "Let's get started!"}`,
-        }]);
+      // Load messages from database
+      if (data.messages && Array.isArray(data.messages)) {
+        setMessages(data.messages as Message[]);
       }
     } catch (error) {
       console.error('Failed to load draft:', error);
@@ -66,7 +59,7 @@ Let's collect the information together. ${(data.fields as Field[])[0]?.question 
     setInput('');
     setSending(true);
 
-    // Add user message to UI
+    // Optimistically add user message to UI for immediate feedback
     setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
 
     try {
@@ -78,12 +71,7 @@ Let's collect the information together. ${(data.fields as Field[])[0]?.question 
 
       if (!res.ok) throw new Error('Failed to send message');
 
-      const data = await res.json();
-
-      // Add assistant message
-      setMessages(prev => [...prev, { role: 'assistant', content: data.message }]);
-
-      // Reload draft to get updated data
+      // Reload draft to get updated data and messages from database
       await loadDraft();
     } catch (error) {
       console.error('Failed to send message:', error);
@@ -199,15 +187,15 @@ Let's collect the information together. ${(data.fields as Field[])[0]?.question 
       </header>
 
       {/* Main content */}
-      <div className="flex-1 grid grid-cols-2 gap-6 p-6 overflow-hidden">
+      <div className="flex-1 grid grid-cols-2 gap-6 p-6 overflow-hidden min-h-0">
         {/* Chat Panel */}
-        <div className="flex flex-col bg-white rounded-lg shadow-lg">
-          <div className="p-4 border-b border-gray-200">
+        <div className="flex flex-col bg-white rounded-lg shadow-lg min-h-0">
+          <div className="p-4 border-b border-gray-200 flex-shrink-0">
             <h2 className="font-semibold text-gray-900">Conversation</h2>
           </div>
 
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-0">
             {messages.map((msg, idx) => (
               <div
                 key={idx}
@@ -238,7 +226,7 @@ Let's collect the information together. ${(data.fields as Field[])[0]?.question 
           </div>
 
           {/* Input */}
-          <div className="p-4 border-t border-gray-200">
+          <div className="p-4 border-t border-gray-200 flex-shrink-0">
             <form
               onSubmit={(e) => {
                 e.preventDefault();
@@ -266,8 +254,8 @@ Let's collect the information together. ${(data.fields as Field[])[0]?.question 
         </div>
 
         {/* Preview Panel */}
-        <div className="flex flex-col bg-white rounded-lg shadow-lg" id="preview">
-          <div className="p-4 border-b border-gray-200 flex items-center justify-between">
+        <div className="flex flex-col bg-white rounded-lg shadow-lg min-h-0" id="preview">
+          <div className="p-4 border-b border-gray-200 flex items-center justify-between flex-shrink-0">
             <h2 className="font-semibold text-gray-900">Document Preview</h2>
             {draft.completeness === 100 && !draft.filledDocUrl && (
               <button
@@ -289,7 +277,7 @@ Let's collect the information together. ${(data.fields as Field[])[0]?.question 
             )}
           </div>
 
-          <div className="flex-1 overflow-y-auto p-6">
+          <div className="flex-1 overflow-y-auto p-6 min-h-0">
             <div
               className="prose max-w-none"
               dangerouslySetInnerHTML={{

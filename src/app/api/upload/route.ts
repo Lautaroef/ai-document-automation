@@ -43,6 +43,7 @@ export async function POST(req: NextRequest) {
     const blob = await put(file.name, file, {
       access: 'public',
       contentType: file.type,
+      addRandomSuffix: true, // Avoid conflicts on re-uploads
     });
 
     console.log('[Upload] File stored at:', blob.url);
@@ -69,13 +70,14 @@ ${text.slice(0, 8000)} ${text.length > 8000 ? '...(truncated)' : ''}
 
 Instructions:
 1. Identify ALL placeholders in brackets like [Company Name], [Investor Name], [Date], $[______], etc.
-2. For each placeholder, determine:
-   - A unique key (e.g., "company_name")
-   - The display label (e.g., "Company Name")
-   - The type: "text", "money", "date", or "jurisdiction"
-   - Whether it's required (most are)
-   - A natural question to ask the user (e.g., "What's the name of the company?")
-   - An example value (e.g., "e.g., Acme Corp")
+2. For each placeholder, you MUST provide ALL of these fields:
+   - key: A unique key (e.g., "company_name")
+   - label: The display label (e.g., "Company Name")
+   - type: One of "text", "money", "date", or "jurisdiction"
+   - required: Boolean - true if the field is required, false otherwise (most SAFE fields are required)
+   - question: A natural question to ask the user (e.g., "What's the name of the company?")
+   - example: An example value (e.g., "e.g., Acme Corp")
+   - validationHint: Optional - additional validation hints
 3. Assess your overall confidence in the extraction
 
 Common SAFE agreement fields:
@@ -87,7 +89,7 @@ Common SAFE agreement fields:
 - State of Incorporation (jurisdiction)
 - Governing Law Jurisdiction (jurisdiction)
 
-Return a structured response with fields array and confidence assessment.`,
+IMPORTANT: Every field object MUST include the "required" property as a boolean value.`,
     });
 
     console.log('[Upload] Fields extracted:', extraction.fields.length);
@@ -102,7 +104,15 @@ Return a structured response with fields array and confidence assessment.`,
 
     console.log('[Upload] Conversation created:', conversation.id);
 
-    // 5. Create Draft record
+    // 5. Generate initial message
+    const fieldCount = extraction.fields.length;
+    const requiredFields = extraction.fields.filter(f => f.required);
+
+    const initialMessage = `Great! I've analyzed your SAFE agreement and found ${fieldCount} fields that need to be filled${requiredFields.length < fieldCount ? ` (${requiredFields.length} required)` : ''}.
+
+Let's collect the information together. ${extraction.fields[0]?.question || "Let's get started!"}`;
+
+    // 6. Create Draft record with initial message
     const draft = await prisma.draft.create({
       data: {
         originalDocUrl: blob.url,
@@ -112,18 +122,16 @@ Return a structured response with fields array and confidence assessment.`,
         openaiConvId: conversation.id,
         status: 'collecting',
         completeness: 0,
+        messages: [
+          {
+            role: 'assistant',
+            content: initialMessage,
+          },
+        ],
       },
     });
 
     console.log('[Upload] Draft created:', draft.id);
-
-    // 6. Generate initial message
-    const fieldCount = extraction.fields.length;
-    const requiredFields = extraction.fields.filter(f => f.required);
-
-    const initialMessage = `Great! I've analyzed your SAFE agreement and found ${fieldCount} fields that need to be filled${requiredFields.length < fieldCount ? ` (${requiredFields.length} required)` : ''}.
-
-Let's collect the information together. ${extraction.fields[0]?.question || "Let's get started!"}`;
 
     return NextResponse.json({
       draftId: draft.id,

@@ -26,17 +26,16 @@ export type FieldsExtraction = z.infer<typeof FieldsExtractionSchema>;
 
 // Conversation response (from chat API)
 export const ConversationResponseSchema = z.object({
+  messageType: z.enum(['document_info', 'general_chat', 'greeting']),
+  conversationalResponse: z.string(),
   extractedData: z.record(z.string(), z.string()),
-  confidence: z.object({
-    overall: z.enum(['high', 'medium', 'low']),
-    perField: z.record(z.string(), z.enum(['high', 'medium', 'low'])),
-    reasoning: z.string(),
-  }),
+  confidenceLevel: z.enum(['high', 'medium', 'low']),
+  confidenceReasoning: z.string(),
   nextQuestion: z.string().nullable(),
   missingFields: z.array(z.string()),
   isComplete: z.boolean(),
   needsClarification: z.boolean(),
-  clarificationQuestion: z.string().optional(),
+  clarificationQuestion: z.string().nullable(),
 });
 
 export type ConversationResponse = z.infer<typeof ConversationResponseSchema>;

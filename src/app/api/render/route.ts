@@ -2,8 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { put } from '@vercel/blob';
 import { prisma } from '@/lib/db';
 import { type Field } from '@/lib/types';
-// @ts-ignore - html-docx-js doesn't have types
-import htmlDocx from 'html-docx-js';
+import HTMLtoDOCX from 'html-to-docx';
 
 export const runtime = 'nodejs';
 export const maxDuration = 60;
@@ -87,8 +86,11 @@ export async function POST(req: NextRequest) {
 </body>
 </html>`;
 
-    const docxBlob = htmlDocx.asBlob(htmlDoc);
-    const docxBuffer = Buffer.from(await docxBlob.arrayBuffer());
+    const docxBuffer = await HTMLtoDOCX(htmlDoc, null, {
+      table: { row: { cantSplit: true } },
+      footer: true,
+      pageNumber: true,
+    });
 
     // Upload to Vercel Blob
     const blob = await put(`filled-${draftId}.docx`, docxBuffer, {

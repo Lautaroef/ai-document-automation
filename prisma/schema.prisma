@@ -6,8 +6,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model Draft {
@@ -25,6 +26,7 @@ model Draft {
   // Conversation state
   openaiConvId    String   @unique // OpenAI Conversation ID
   collectedData   Json     @default("{}")
+  messages        Json     @default("[]") // Chat message history
 
   // Metadata
   status          String   @default("parsing") // 'parsing' | 'collecting' | 'complete'
