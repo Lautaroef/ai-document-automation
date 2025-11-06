@@ -1,36 +1,73 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Lexsy Document Automation POC
+
+AI-powered legal document automation system for SAFE agreements. Built for the Lexsy take-home assignment.
+
+## Features
+
+- 📄 **Document Upload**: Drag-and-drop .docx file upload
+- 🤖 **AI Field Detection**: Automatically identifies placeholders using GPT-4o-mini
+- 💬 **Conversational Data Collection**: Natural chat interface to fill missing data
+- ✅ **Self-Validating AI**: Confidence scoring and ambiguity detection
+- 📊 **Live Preview**: Real-time document preview with highlighted fields
+- ⬇️ **Document Export**: Download completed .docx files
+
+## Tech Stack
+
+- **Frontend**: Next.js 15, React 19, TailwindCSS
+- **Backend**: Next.js API Routes
+- **Database**: PostgreSQL + Prisma ORM
+- **AI**: OpenAI API (Responses API + Conversations API)
+- **Storage**: Vercel Blob
+- **Deployment**: Vercel
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+- Node.js 20+
+- PostgreSQL database (or Vercel Postgres)
+- OpenAI API key
+- Vercel account (for Blob storage)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+### Installation
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+1. **Clone and install**
+   ```bash
+   git clone <repo-url>
+   cd lexsy-app
+   npm install
+   ```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+2. **Setup environment variables**
+   ```bash
+   cp .env.example .env
+   ```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+   Edit `.env`:
+   ```env
+   OPENAI_API_KEY=sk-...
+   DATABASE_URL=postgresql://...
+   BLOB_READ_WRITE_TOKEN=...
+   ```
 
-## Learn More
+3. **Setup database**
+   ```bash
+   npx prisma db push
+   npx prisma generate
+   ```
 
-To learn more about Next.js, take a look at the following resources:
+4. **Run development server**
+   ```bash
+   npm run dev
+   ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+   Open [http://localhost:3000](http://localhost:3000)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Architecture
 
-## Deploy on Vercel
+See `/research` folder for detailed AI implementation patterns and conversation management strategies.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Demo
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Built with AI-powered conversational document completion using OpenAI's Responses API + Conversations API.
+
+Cost per document: < $0.006

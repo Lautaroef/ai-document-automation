@@ -1,0 +1,41 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Draft {
+  id              String   @id @default(cuid())
+  userId          String?  // Optional user tracking
+
+  // Document storage
+  originalDocUrl  String   // Vercel Blob URL
+  documentHtml    String   @db.Text
+  documentText    String   @db.Text
+
+  // AI-detected fields
+  fields          Json     // Field definitions with metadata
+
+  // Conversation state
+  openaiConvId    String   @unique // OpenAI Conversation ID
+  collectedData   Json     @default("{}")
+
+  // Metadata
+  status          String   @default("parsing") // 'parsing' | 'collecting' | 'complete'
+  completeness    Int      @default(0) // 0-100%
+
+  // Output
+  filledHtml      String?  @db.Text
+  filledDocUrl    String?
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([status, createdAt])
+}
