@@ -45,54 +45,51 @@ export async function POST(req: NextRequest) {
       conversation: draft.openaiConvId,
       input: [{ role: 'user', content: message }],
       instructions,
-      text: {
-        format: {
-          type: 'json_schema',
+      response_format: {
+        type: 'json_schema',
+        json_schema: {
+          name: 'ConversationResponse',
           strict: true,
-          json_schema: {
-            name: 'ConversationResponse',
-            strict: true,
-            schema: {
-              type: 'object',
-              properties: {
-                extractedData: {
-                  type: 'object',
-                  additionalProperties: { type: 'string' },
-                },
-                confidence: {
-                  type: 'object',
-                  properties: {
-                    overall: { type: 'string', enum: ['high', 'medium', 'low'] },
-                    perField: {
-                      type: 'object',
-                      additionalProperties: { type: 'string', enum: ['high', 'medium', 'low'] },
-                    },
-                    reasoning: { type: 'string' },
-                  },
-                  required: ['overall', 'perField', 'reasoning'],
-                  additionalProperties: false,
-                },
-                nextQuestion: {
-                  type: ['string', 'null'],
-                },
-                missingFields: {
-                  type: 'array',
-                  items: { type: 'string' },
-                },
-                isComplete: { type: 'boolean' },
-                needsClarification: { type: 'boolean' },
-                clarificationQuestion: { type: 'string' },
+          schema: {
+            type: 'object',
+            properties: {
+              extractedData: {
+                type: 'object',
+                additionalProperties: { type: 'string' },
               },
-              required: [
-                'extractedData',
-                'confidence',
-                'nextQuestion',
-                'missingFields',
-                'isComplete',
-                'needsClarification',
-              ],
-              additionalProperties: false,
+              confidence: {
+                type: 'object',
+                properties: {
+                  overall: { type: 'string', enum: ['high', 'medium', 'low'] },
+                  perField: {
+                    type: 'object',
+                    additionalProperties: { type: 'string', enum: ['high', 'medium', 'low'] },
+                  },
+                  reasoning: { type: 'string' },
+                },
+                required: ['overall', 'perField', 'reasoning'],
+                additionalProperties: false,
+              },
+              nextQuestion: {
+                type: ['string', 'null'],
+              },
+              missingFields: {
+                type: 'array',
+                items: { type: 'string' },
+              },
+              isComplete: { type: 'boolean' },
+              needsClarification: { type: 'boolean' },
+              clarificationQuestion: { type: 'string' },
             },
+            required: [
+              'extractedData',
+              'confidence',
+              'nextQuestion',
+              'missingFields',
+              'isComplete',
+              'needsClarification',
+            ],
+            additionalProperties: false,
           },
         },
       },

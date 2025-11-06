@@ -1,6 +1,6 @@
-# Lexsy Document Automation POC
+# AI Doc Fill
 
-AI-powered legal document automation system for SAFE agreements. Built for the Lexsy take-home assignment.
+AI-powered document automation proof-of-concept for SAFE agreements.
 
 ## Features
 
@@ -33,7 +33,7 @@ AI-powered legal document automation system for SAFE agreements. Built for the L
 1. **Clone and install**
    ```bash
    git clone <repo-url>
-   cd lexsy-app
+   cd ai-doc-fill
    npm install
    ```
 

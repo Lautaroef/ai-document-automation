@@ -83,7 +83,7 @@ export default function Home() {
       <div className="max-w-2xl w-full">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">
-            Lexsy Document Automation
+            AI Doc Fill
           </h1>
           <p className="text-lg text-gray-600">
             AI-powered SAFE agreement completion
