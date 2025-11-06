@@ -26,10 +26,10 @@ export type FieldsExtraction = z.infer<typeof FieldsExtractionSchema>;
 
 // Conversation response (from chat API)
 export const ConversationResponseSchema = z.object({
-  extractedData: z.record(z.string()),
+  extractedData: z.record(z.string(), z.string()),
   confidence: z.object({
     overall: z.enum(['high', 'medium', 'low']),
-    perField: z.record(z.enum(['high', 'medium', 'low'])),
+    perField: z.record(z.string(), z.enum(['high', 'medium', 'low'])),
     reasoning: z.string(),
   }),
   nextQuestion: z.string().nullable(),

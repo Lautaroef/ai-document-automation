@@ -45,9 +45,9 @@ export async function POST(req: NextRequest) {
       conversation: draft.openaiConvId,
       input: [{ role: 'user', content: message }],
       instructions,
-      response_format: {
-        type: 'json_schema',
-        json_schema: {
+      text: {
+        format: {
+          type: 'json_schema',
           name: 'ConversationResponse',
           strict: true,
           schema: {
